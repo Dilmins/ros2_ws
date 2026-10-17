@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="drone_world">
+    <include><uri>model://sun</uri></include>
+    <include><uri>model://ground_plane</uri></include>
+
+    <!-- Publishes /gazebo/model_states (poses of every model) to ROS.
+         The controller needs this to know the drone's real height. -->
+    <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
+      <ros>
+        <namespace>/gazebo</namespace>
+        <argument>model_states:=model_states</argument>
+      </ros>
+      <update_rate>50.0</update_rate>
+    </plugin>
+  </world>
+</sdf>

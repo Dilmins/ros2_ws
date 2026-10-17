@@ -11,9 +11,11 @@
           <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
         </inertia>
       </inertial>
+      <!-- ODE applies this as a fraction of velocity lost PER PHYSICS STEP
+           (1 ms), not per second. 0.0005 is roughly 0.5 /s of air drag. -->
       <velocity_decay>
-        <linear>0.15</linear>
-        <angular>2.0</angular>
+        <linear>0.0005</linear>
+        <angular>0.002</angular>
       </velocity_decay>
       <collision name="body_collision">
         <geometry><box><size>0.47 0.47 0.11</size></box></geometry>
@@ -60,6 +62,7 @@
         <namespace>/drone</namespace>
       </ros>
       <link_name>base_link</link_name>
+      <force_frame>world</force_frame>
     </plugin>
   </model>
 </sdf>

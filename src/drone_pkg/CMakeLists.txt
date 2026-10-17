@@ -36,4 +36,9 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+# ── Data files (without this, `ros2 launch` can't find them) ──────────────────
+install(DIRECTORY launch models worlds
+  DESTINATION share/${PROJECT_NAME}
+)
+
 ament_package()
