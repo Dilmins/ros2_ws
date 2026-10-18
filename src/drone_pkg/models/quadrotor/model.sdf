@@ -2,61 +2,71 @@
 <sdf version="1.6">
   <model name="quadrotor">
     <pose>0 0 0.1 0 0 0</pose>
+
+    <!-- One rigid body. The force plugin pushes on base_link only, so every
+         part that should move with the drone must be part of this link
+         (rotors/arms below are visuals, not separate bodies). -->
     <link name="base_link">
-      <pose>0 0 0 0 0 0</pose>
       <inertial>
-        <mass>1.5</mass>
+        <!-- 1.5 kg body + 4 x 0.05 kg rotors = 1.7 kg (matches MASS_KG in the controller) -->
+        <mass>1.7</mass>
         <inertia>
-          <ixx>0.0135</ixx><iyy>0.0135</iyy><izz>0.0270</izz>
+          <ixx>0.025</ixx><iyy>0.025</iyy><izz>0.040</izz>
           <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
         </inertia>
       </inertial>
+
       <!-- ODE applies this as a fraction of velocity lost PER PHYSICS STEP
            (1 ms), not per second. 0.0005 is roughly 0.5 /s of air drag. -->
       <velocity_decay>
         <linear>0.0005</linear>
         <angular>0.002</angular>
       </velocity_decay>
+
       <collision name="body_collision">
         <geometry><box><size>0.47 0.47 0.11</size></box></geometry>
       </collision>
+
       <visual name="body_visual">
-        <geometry><box><size>0.47 0.47 0.11</size></box></geometry>
+        <geometry><box><size>0.20 0.20 0.08</size></box></geometry>
         <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
       </visual>
+
+      <!-- Two crossed arms (diagonals) -->
+      <visual name="arm_a">
+        <pose>0 0 0.02 0 0 0.7854</pose>
+        <geometry><box><size>0.56 0.03 0.02</size></box></geometry>
+        <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
+      </visual>
+      <visual name="arm_b">
+        <pose>0 0 0.02 0 0 -0.7854</pose>
+        <geometry><box><size>0.56 0.03 0.02</size></box></geometry>
+        <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.2 0.2 0.2 1</diffuse></material>
+      </visual>
+
+      <!-- Rotor discs: red = front-right, green = front-left (+X is forward) -->
+      <visual name="rotor_fr">
+        <pose>0.18 -0.18 0.06 0 0 0</pose>
+        <geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry>
+        <material><ambient>0.8 0.1 0.1 1</ambient><diffuse>0.8 0.1 0.1 1</diffuse></material>
+      </visual>
+      <visual name="rotor_fl">
+        <pose>0.18 0.18 0.06 0 0 0</pose>
+        <geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry>
+        <material><ambient>0.1 0.8 0.1 1</ambient><diffuse>0.1 0.8 0.1 1</diffuse></material>
+      </visual>
+      <visual name="rotor_rr">
+        <pose>-0.18 -0.18 0.06 0 0 0</pose>
+        <geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry>
+        <material><ambient>0.1 0.1 0.8 1</ambient><diffuse>0.1 0.1 0.8 1</diffuse></material>
+      </visual>
+      <visual name="rotor_rl">
+        <pose>-0.18 0.18 0.06 0 0 0</pose>
+        <geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry>
+        <material><ambient>0.5 0.1 0.8 1</ambient><diffuse>0.5 0.1 0.8 1</diffuse></material>
+      </visual>
     </link>
-    <link name="rotor_fr">
-      <pose>0.18 -0.18 0.16 0 0 0</pose>
-      <inertial><mass>0.05</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0002</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
-      <collision name="col"><geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry></collision>
-      <visual name="vis"><geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry>
-        <material><ambient>0.8 0.1 0.1 1</ambient><diffuse>0.8 0.1 0.1 1</diffuse></material></visual>
-    </link>
-    <link name="rotor_fl">
-      <pose>0.18 0.18 0.16 0 0 0</pose>
-      <inertial><mass>0.05</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0002</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
-      <collision name="col"><geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry></collision>
-      <visual name="vis"><geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry>
-        <material><ambient>0.1 0.8 0.1 1</ambient><diffuse>0.1 0.8 0.1 1</diffuse></material></visual>
-    </link>
-    <link name="rotor_rr">
-      <pose>-0.18 -0.18 0.16 0 0 0</pose>
-      <inertial><mass>0.05</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0002</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
-      <collision name="col"><geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry></collision>
-      <visual name="vis"><geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry>
-        <material><ambient>0.1 0.1 0.8 1</ambient><diffuse>0.1 0.1 0.8 1</diffuse></material></visual>
-    </link>
-    <link name="rotor_rl">
-      <pose>-0.18 0.18 0.16 0 0 0</pose>
-      <inertial><mass>0.05</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0002</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
-      <collision name="col"><geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry></collision>
-      <visual name="vis"><geometry><cylinder><radius>0.12</radius><length>0.01</length></cylinder></geometry>
-        <material><ambient>0.5 0.1 0.8 1</ambient><diffuse>0.5 0.1 0.8 1</diffuse></material></visual>
-    </link>
-    <joint name="joint_fr" type="fixed"><parent>base_link</parent><child>rotor_fr</child></joint>
-    <joint name="joint_fl" type="fixed"><parent>base_link</parent><child>rotor_fl</child></joint>
-    <joint name="joint_rr" type="fixed"><parent>base_link</parent><child>rotor_rr</child></joint>
-    <joint name="joint_rl" type="fixed"><parent>base_link</parent><child>rotor_rl</child></joint>
+
     <plugin name="gazebo_ros_force" filename="libgazebo_ros_force.so">
       <ros>
         <namespace>/drone</namespace>

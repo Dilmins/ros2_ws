@@ -22,6 +22,7 @@ static constexpr double MAX_TORQUE  = 0.5;
 static constexpr double MOTOR_TAU   = 0.1;
 static constexpr double CTRL_HZ     = 50.0;
 static constexpr double DT          = 1.0 / CTRL_HZ;
+static constexpr double CMD_TIMEOUT_S = 0.5;   // teleop publishes at 20 Hz
 
 // ── PID gains (tune these) ────────────────────────────────────────────────────
 static constexpr double KP          = 8.0;   // proportional — main correction
@@ -67,6 +68,7 @@ public:
           target_z_  = std::max(0.0, target_z_);
           if (target_z_ > 0.0) altitude_hold_active_ = true;
         }
+        last_cmd_time_ = now();
         target_fx_ = std::clamp(msg->linear.x,  -1.0, 1.0) * 3.0;
         target_fy_ = std::clamp(msg->linear.y,  -1.0, 1.0) * 3.0;
         target_tz_ = std::clamp(msg->angular.z, -1.0, 1.0) * MAX_TORQUE;
@@ -99,6 +101,12 @@ public:
 private:
   void control_loop()
   {
+    // Command watchdog: if the teleop goes silent, stop lateral/yaw motion.
+    // (Altitude target is kept, so the drone hovers instead of falling.)
+    if ((now() - last_cmd_time_).seconds() > CMD_TIMEOUT_S) {
+      target_fx_ = target_fy_ = target_tz_ = 0.0;
+    }
+
     const double alpha = DT / (MOTOR_TAU + DT);
 
     // Lateral/yaw motor lag (unchanged from Phase 4)
@@ -142,6 +150,7 @@ private:
   rclcpp::Subscription<gazebo_msgs::msg::ModelStates>::SharedPtr model_states_sub_;
   rclcpp::TimerBase::SharedPtr timer_;
 
+  rclcpp::Time last_cmd_time_{0, 0, RCL_ROS_TIME};
   double current_z_, target_z_;
   double pid_integral_, prev_error_;
   double fx_, fy_, tz_;
